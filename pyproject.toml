@@ -1,0 +1,28 @@
+[project]
+name = "uao-neumonia"
+version = "0.1.0"
+description = "Detección rápida de neumonía con Deep Learning y Grad-CAM"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.5.5",
+    "opencv-python>=5.1.0.95",
+    "pillow>=13.0.0",
+    "pydicom>=3.0.2",
+    "pylibjpeg>=2.1.0",
+    "pylibjpeg-libjpeg>=2.5.0",
+    "pylibjpeg-openjpeg>=2.6.0",
+    "tensorflow>=2.21.0",
+]
+
+[tool.ruff]
+exclude = ["detector_neumonia.py"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]

@@ -14,26 +14,50 @@ Aplicación de una técnica de explicación llamada Grad-CAM para resaltar con u
 
 ## Uso de la herramienta:
 
-A continuación le explicaremos cómo empezar a utilizarla.
+### Requisitos
 
-Requerimientos necesarios para el funcionamiento:
+- [uv](https://docs.astral.sh/uv/) (gestor de entornos y dependencias)
+- `make` (opcional, para usar los atajos del Makefile)
+- Python 3.13 (uv lo instala automáticamente si no está disponible)
 
-- Instale Anaconda para Windows siguiendo las siguientes instrucciones:
-  https://docs.anaconda.com/anaconda/install/windows/
+La versión de Python está fijada en `.python-version` y todas las dependencias se declaran en `pyproject.toml`.
 
-- Abra Anaconda Prompt y ejecute las siguientes instrucciones:
+### Instalación reproducible
 
-  conda create -n tf tensorflow
+```bash
+# Instalar Python 3.13 y crear el entorno con todas las dependencias
+uv sync
 
-  conda activate tf
+# Alternativa usando Make
+make install
+```
 
-  cd UAO-Neumonia
+### Ejecución
 
-  pip install -r requirements.txt
+```bash
+# Abrir la interfaz gráfica
+uv run python detector_neumonia.py
 
-  python detector_neumonia.py
+# Alternativa usando Make
+make run
+```
 
-Uso de la Interfaz Gráfica:
+### Pruebas y calidad de código
+
+```bash
+# Ejecutar la suite de pruebas
+uv run pytest
+
+# Ejecutar el linter y verificar el formato
+uv run ruff check .
+uv run ruff format --check .
+
+# Alternativa usando Make
+make test
+make check
+```
+
+### Uso de la Interfaz Gráfica
 
 - Ingrese la cédula del paciente en la caja de texto
 - Presione el botón 'Cargar Imagen', seleccione la imagen del explorador de archivos del computador (Imagenes de prueba en https://drive.google.com/drive/folders/1WOuL0wdVC6aojy8IfssHcqZ4Up14dy0g?usp=drive_link)
@@ -41,6 +65,47 @@ Uso de la Interfaz Gráfica:
 - Presione el botón 'Guardar' para almacenar la información del paciente en un archivo excel con extensión .csv
 - Presione el botón 'PDF' para descargar un archivo PDF con la información desplegada en la interfaz
 - Presión el botón 'Borrar' si desea cargar una nueva imagen
+
+---
+
+## Estructura del proyecto
+
+```
+UAO-Neumonia/
+├── .python-version        # Python 3.13 fijado con uv
+├── pyproject.toml         # Dependencias y configuración de ruff/pytest
+├── Makefile               # Tareas install, run, test y check
+├── detector_neumonia.py   # Punto de entrada de la aplicación
+├── src/                   # Módulos de la aplicación (MVC)
+│   ├── load_model.py
+│   ├── read_img.py
+│   ├── preprocess_img.py
+│   ├── grad_cam.py
+│   ├── integrator.py
+│   └── ui.py
+└── tests/                 # Pruebas automatizadas
+```
+
+## Arquitectura MVC (6 módulos)
+
+```
+                 +-------------------------+
+                 |      ui.py (Vista)      |
+                 +------------+------------+
+                              |
+                              v
+                 +-------------------------+
+                 | integrator.py (Control) |
+                 +--+-------+-------+----+-+
+                    |       |       |    |
+                    v       v       v    v
+              read_img  preprocess grad_cam load_model
+              (Modelo)   (Modelo)  (Modelo) (Modelo)
+```
+
+- **Vista:** `ui.py` muestra la imagen, el heatmap y los resultados.
+- **Controlador:** `integrator.py` coordina los módulos y retorna solo lo necesario para la interfaz.
+- **Modelo:** `read_img.py`, `preprocess_img.py`, `grad_cam.py` y `load_model.py` contienen la lógica de lectura, preprocesamiento, explicación y carga de la red neuronal.
 
 ---
 
@@ -52,16 +117,16 @@ Contiene el diseño de la interfaz gráfica utilizando Tkinter.
 
 Los botones llaman métodos contenidos en otros scripts.
 
-## integrator.py
+## src/integrator.py
 
 Es un módulo que integra los demás scripts y retorna solamente lo necesario para ser visualizado en la interfaz gráfica.
 Retorna la clase, la probabilidad y una imagen el mapa de calor generado por Grad-CAM.
 
-## read_img.py
+## src/read_img.py
 
 Script que lee la imagen en formato DICOM para visualizarla en la interfaz gráfica. Además, la convierte a arreglo para su preprocesamiento.
 
-## preprocess_img.py
+## src/preprocess_img.py
 
 Script que recibe el arreglo proveniento de read_img.py, realiza las siguientes modificaciones:
 
@@ -71,13 +136,17 @@ Script que recibe el arreglo proveniento de read_img.py, realiza las siguientes 
 - normalización de la imagen entre 0 y 1
 - conversión del arreglo de imagen a formato de batch (tensor)
 
-## load_model.py
+## src/load_model.py
 
 Script que lee el archivo binario del modelo de red neuronal convolucional previamente entrenado llamado 'WilhemNet86.h5'.
 
-## grad_cam.py
+## src/grad_cam.py
 
 Script que recibe la imagen y la procesa, carga el modelo, obtiene la predicción y la capa convolucional de interés para obtener las características relevantes de la imagen.
+
+## src/ui.py
+
+Módulo de la vista encargado de construir y actualizar la interfaz gráfica.
 
 ---
 
