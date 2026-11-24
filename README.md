@@ -1,4 +1,28 @@
-## Hola! Bienvenido a la herramienta para la detección rápida de neumonía
+# UAO Neumonía Grupo 1
+
+[![CI](https://github.com/carolinadoradouao/UAO-Neumonia-Grupo1/actions/workflows/ci.yml/badge.svg)](https://github.com/carolinadoradouao/UAO-Neumonia-Grupo1/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)
+[![uv](https://img.shields.io/badge/managed%20by-uv-black.svg)](https://docs.astral.sh/uv/)
+[![Ruff](https://img.shields.io/badge/linted%20with-Ruff-black.svg)](https://docs.astral.sh/ruff/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+
+> Detección rápida de neumonía en radiografías de tórax (DICOM) con Deep Learning y Grad-CAM.
+
+## Tabla de contenidos
+
+- [Descripción](#descripción)
+- [Uso de la herramienta](#uso-de-la-herramienta)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Arquitectura MVC](#arquitectura-mvc-6-módulos)
+- [Acerca del modelo](#acerca-del-modelo)
+- [Acerca de Grad-CAM](#acerca-de-grad-cam)
+- [Contribución](#contribución)
+- [Licencia](#licencia)
+- [Créditos](#proyecto-original-realizado-por)
+
+## Descripción
+
+Bienvenido a la herramienta para la detección rápida de neumonía.
 
 Deep Learning aplicado en el procesamiento de imágenes radiográficas de tórax en formato DICOM con el fin de clasificarlas en 3 categorías diferentes:
 
@@ -52,9 +76,13 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 
+# Instalar los hooks de pre-commit
+uv run pre-commit install
+
 # Alternativa usando Make
+make dev      # uv sync + hooks de pre-commit
 make test
-make check
+make check    # lint + formato + pruebas
 ```
 
 ### Uso de la Interfaz Gráfica
@@ -71,20 +99,34 @@ make check
 ## Estructura del proyecto
 
 ```
-UAO-Neumonia/
-├── .python-version        # Python 3.13 fijado con uv
-├── pyproject.toml         # Dependencias y configuración de ruff/pytest
-├── Makefile               # Tareas install, run, test y check
-├── detector_neumonia.py   # Punto de entrada de la aplicación
-├── src/                   # Módulos de la aplicación (MVC)
+UAO-Neumonia-Grupo1/
+├── detector_neumonia.py     # Punto de entrada de la aplicación (Tkinter)
+├── src/                     # Módulos de la aplicación (MVC, namespace `src.*`)
 │   ├── load_model.py
 │   ├── read_img.py
 │   ├── preprocess_img.py
 │   ├── grad_cam.py
 │   ├── integrator.py
 │   └── ui.py
-└── tests/                 # Pruebas automatizadas
+├── model/                   # Pesos entrenados (no versionados)
+├── tests/                   # Pruebas automatizadas
+├── docs/                    # Documentación, ADRs e investigación
+├── .github/                 # PR/issue templates, CI, labels y Dependabot
+├── .opencode/rules/         # Reglas para agentes (tgrep)
+├── AGENTS.md                # Contexto para asistentes LLM
+├── CONSTITUTION.md          # Fuente única de verdad
+├── CONTRIBUTING.md          # Guía de contribución
+├── CODE_OF_CONDUCT.md       # Código de conducta
+├── LICENSE                  # Licencia MIT
+├── .python-version          # Python 3.13 fijado con uv
+├── .pre-commit-config.yaml  # Hooks de calidad
+├── pyproject.toml           # Dependencias y configuración de Ruff/pytest
+├── uv.lock                  # Lockfile determinista (versionado)
+└── Makefile                 # Automatización de tareas
 ```
+
+> El modelo `conv_MLP_84.h5` no se versiona: colócalo en `model/` antes de ejecutar la
+> interfaz.
 
 ## Arquitectura MVC (6 módulos)
 
@@ -138,7 +180,7 @@ Script que recibe el arreglo proveniento de read_img.py, realiza las siguientes 
 
 ## src/load_model.py
 
-Script que lee el archivo binario del modelo de red neuronal convolucional previamente entrenado llamado 'WilhemNet86.h5'.
+Script que lee el archivo binario del modelo de red neuronal convolucional previamente entrenado llamado 'conv_MLP_84.h5'.
 
 ## src/grad_cam.py
 
@@ -172,3 +214,22 @@ Grad-CAM realiza el cálculo del gradiente de la salida correspondiente a la cla
 
 Isabella Torres Revelo - https://github.com/isa-tr
 Nicolas Diaz Salazar - https://github.com/nicolasdiazsalazar
+
+---
+
+## Contribución
+
+Lee [`CONTRIBUTING.md`](./CONTRIBUTING.md) y el [`Código de conducta`](./CODE_OF_CONDUCT.md)
+antes de abrir un Pull Request. La documentación técnica central está en
+[`CONSTITUTION.md`](./CONSTITUTION.md).
+
+```bash
+git clone git@github.com:carolinadoradouao/UAO-Neumonia-Grupo1.git
+cd UAO-Neumonia-Grupo1
+make dev      # uv sync + hooks de pre-commit
+make check    # lint + formato + pruebas
+```
+
+## Licencia
+
+Este proyecto se distribuye bajo la [Licencia MIT](./LICENSE).
