@@ -12,6 +12,8 @@ import tkinter as tk
 from tkinter import filedialog, font, ttk
 from tkinter.messagebox import WARNING, askokcancel, showinfo
 
+import cv2
+import numpy as np
 from PIL import Image, ImageGrab, ImageTk
 
 from src import integrator
@@ -107,6 +109,38 @@ class App:
         resized = image.resize(size, Image.Resampling.LANCZOS)
         return ImageTk.PhotoImage(resized)
 
+    def _display_heatmap(self, base, heatmap):
+        """Compone una imagen mostrable a partir del mapa de calor Grad-CAM.
+
+        Args:
+            base: Imagen original en el formato devuelto por ``integrator.load_image``.
+            heatmap: Mapa de calor 2D ``float32`` o una imagen ya mostrable.
+
+        Returns:
+            Una imagen PIL o un arreglo RGB listo para ``_photo_image``.
+        """
+        if isinstance(heatmap, Image.Image):
+            return heatmap
+
+        heat = np.asarray(heatmap, dtype=np.float32)
+        if heat.ndim == 3:
+            return heat
+
+        base_array = np.asarray(base).astype(np.uint8)
+        if base_array.ndim == 2:
+            base_rgb = cv2.cvtColor(base_array, cv2.COLOR_GRAY2RGB)
+        elif base_array.shape[2] == 4:
+            base_rgb = cv2.cvtColor(base_array, cv2.COLOR_RGBA2RGB)
+        else:
+            base_rgb = base_array
+
+        base_rgb = cv2.resize(base_rgb, (512, 512))
+        heat = np.clip(heat, 0.0, 1.0)
+        heat_uint8 = np.uint8(heat * 255.0)
+        colored = cv2.applyColorMap(heat_uint8, cv2.COLORMAP_JET)
+        colored = cv2.cvtColor(colored, cv2.COLOR_BGR2RGB)
+        return cv2.addWeighted(base_rgb, 0.6, colored, 0.4, 0)
+
     def load_img_file(self):
         """Abre un diálogo, carga la imagen seleccionada y la muestra."""
         filepath = filedialog.askopenfilename(
@@ -135,7 +169,8 @@ class App:
             return
 
         self.label, self.proba, self.heatmap = integrator.predict(self.array)
-        self.img2 = self._photo_image(self.heatmap)
+        display = self._display_heatmap(self.array, self.heatmap)
+        self.img2 = self._photo_image(display)
         self.text_img2.delete("1.0", tk.END)
         self.text_img2.image_create(tk.END, image=self.img2)
         self.text2.delete("1.0", tk.END)
