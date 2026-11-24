@@ -18,4 +18,51 @@ models/
 # Datos de imágenes médicas
 *.dcm
 *.jpeg
+*.jpg
 *.png
+
+# Salidas generadas por la aplicación
+historial.csv
+Reporte*.pdf
+
+# Modelos y artefactos pesados
+model/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# Entorno y secretos (NUNCA versionar)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Builds y cobertura
+build/
+dist/
+wheels/
+*.egg-info/
+.uv/
+.coverage
+htmlcov/
+coverage.xml
+
+# Datos y artefactos
+data/raw/
+data/processed/
+artifacts/
+
+# Sistema operativo / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Índice de tgrep
+.tgrep/
+
+# Node (si aplica)
+node_modules/

@@ -23,9 +23,7 @@ def _write_dicom(path, pixels):
     metadata.MediaStorageSOPInstanceUID = generate_uid()
     metadata.TransferSyntaxUID = ExplicitVRLittleEndian
 
-    dataset = FileDataset(
-        str(path), {}, file_meta=metadata, preamble=b"\0" * 128
-    )
+    dataset = FileDataset(str(path), {}, file_meta=metadata, preamble=b"\0" * 128)
     dataset.SOPClassUID = SecondaryCaptureImageStorage
     dataset.SOPInstanceUID = metadata.MediaStorageSOPInstanceUID
     dataset.StudyInstanceUID = generate_uid()

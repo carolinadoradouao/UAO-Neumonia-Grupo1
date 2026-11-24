@@ -62,30 +62,30 @@ def app(tk_root):
 
 def test_load_image_delegates_to_read_img():
     # Arrange
-    expected = ("array", "image")
+    array = np.zeros((2, 2, 3), dtype=np.uint8)
 
     # Act
-    with patch(
-        "src.integrator.read_img.load_image", return_value=expected
-    ) as load_image:
+    with patch("src.integrator.read_img.load_image", return_value=array) as load_image:
         result = integrator.load_image("scan.dcm")
 
     # Assert
-    assert result == expected
+    assert result[0] is array
+    assert isinstance(result[1], Image.Image)
     load_image.assert_called_once_with("scan.dcm")
 
 
 def test_load_image_returns_array_and_image_tuple():
     # Arrange
     array = np.zeros((2, 2, 3), dtype=np.uint8)
-    image = Image.new("RGB", (2, 2))
 
     # Act
-    with patch("src.integrator.read_img.load_image", return_value=(array, image)):
+    with patch("src.integrator.read_img.load_image", return_value=array):
         result = integrator.load_image("scan.dcm")
 
     # Assert
-    assert result == (array, image)
+    assert isinstance(result, tuple)
+    assert result[0] is array
+    assert isinstance(result[1], Image.Image)
 
 
 def test_load_image_propagates_read_error():
@@ -241,7 +241,7 @@ def test_predict_calls_model_predict_with_batch():
     model.predict.assert_called_once_with("batch")
 
 
-def test_predict_calls_generate_gradcam_with_array_and_model():
+def test_predict_calls_generate_gradcam_with_batch_and_model():
     # Arrange
     model = _model_with_probabilities([0.8, 0.1, 0.1])
 
@@ -256,7 +256,7 @@ def test_predict_calls_generate_gradcam_with_array_and_model():
         integrator.predict("array")
 
     # Assert
-    generate_gradcam.assert_called_once_with("array", model)
+    generate_gradcam.assert_called_once_with("batch", model)
 
 
 def test_predict_returns_gradcam_heatmap():

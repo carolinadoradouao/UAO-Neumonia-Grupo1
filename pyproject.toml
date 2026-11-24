@@ -3,7 +3,22 @@ name = "uao-neumonia"
 version = "0.1.0"
 description = "Detección rápida de neumonía con Deep Learning y Grad-CAM"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.13"
+keywords = ["neumonia", "deep-learning", "grad-cam", "dicom", "tensorflow"]
+authors = [
+    { name = "UAO Neumonía Grupo 1", email = "roberto_ale.baez@uaovirtual.edu.co" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
 dependencies = [
     "numpy>=2.5.5",
     "opencv-python>=5.1.0.95",
@@ -13,16 +28,34 @@ dependencies = [
     "pylibjpeg-libjpeg>=2.5.0",
     "pylibjpeg-openjpeg>=2.6.0",
     "tensorflow>=2.21.0",
+    "pyautogui>=0.9.54",
+    "tkcap>=0.0.4",
+    "img2pdf>=0.6.0",
 ]
 
-[tool.ruff]
-exclude = ["detector_neumonia.py"]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
+[project.urls]
+Homepage = "https://github.com/carolinadoradouao/UAO-Neumonia-Grupo1"
+Repository = "https://github.com/carolinadoradouao/UAO-Neumonia-Grupo1"
+Issues = "https://github.com/carolinadoradouao/UAO-Neumonia-Grupo1/issues"
 
 [dependency-groups]
 dev = [
+    "pre-commit>=3.7",
     "pytest>=9.2.0",
     "ruff>=0.17.6",
 ]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "C4"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]

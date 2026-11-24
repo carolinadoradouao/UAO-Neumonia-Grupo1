@@ -9,7 +9,7 @@ _MODEL = None
 _model_path = None
 
 
-def get_model(model_path: str = "Model/conv_MLP_84.h5"):
+def get_model(model_path: str = "model/conv_MLP_84.h5"):
     """Obtiene la red neuronal Keras cargada una única vez en memoria.
 
     La primera llamada valida que ``model_path`` exista en disco y carga el
@@ -37,7 +37,7 @@ def get_model(model_path: str = "Model/conv_MLP_84.h5"):
             f"No se encontró el archivo del modelo; no existe en disco: {model_path}"
         )
 
-    _model = tf.keras.models.load_model(model_path)
+    _model = tf.keras.models.load_model(model_path, compile=False)
     _MODEL = _model
     _model_path = model_path
     return _model

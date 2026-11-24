@@ -63,16 +63,17 @@ def _tensor(height=16, width=16):
     return values.reshape(1, height, width, 1)
 
 
-def test_get_model_raises_file_not_found_for_missing_default_path():
+def test_get_model_raises_file_not_found_for_missing_default_path(monkeypatch):
     # Arrange
-    missing = "Model/conv_MLP_84.h5"
+    default = "model/conv_MLP_84.h5"
+    monkeypatch.setattr(load_model.Path, "is_file", lambda self, *args, **kwargs: False)
 
     # Act
     with pytest.raises(FileNotFoundError) as error:
-        load_model.get_model(missing)
+        load_model.get_model()
 
     # Assert
-    assert missing in str(error.value)
+    assert default in str(error.value)
 
 
 def test_get_model_raises_file_not_found_for_missing_custom_path(tmp_path):
@@ -140,7 +141,7 @@ def test_get_model_loads_model_when_file_exists(tmp_path):
 
     # Assert
     assert result is expected
-    loader.assert_called_once_with(str(path))
+    loader.assert_called_once_with(str(path), compile=False)
 
 
 def test_get_model_is_singleton(tmp_path):
@@ -156,7 +157,7 @@ def test_get_model_is_singleton(tmp_path):
 
     # Assert
     assert first is second
-    loader.assert_called_once_with(str(path))
+    loader.assert_called_once_with(str(path), compile=False)
 
 
 def test_singleton_returns_same_object_on_third_call(tmp_path):
@@ -175,7 +176,7 @@ def test_singleton_returns_same_object_on_third_call(tmp_path):
 
     # Assert
     assert models[0] is models[1] is models[2]
-    loader.assert_called_once_with(str(path))
+    loader.assert_called_once_with(str(path), compile=False)
 
 
 def test_singleton_skips_existence_check_after_first_load(tmp_path):
@@ -209,7 +210,7 @@ def test_get_model_uses_custom_path(tmp_path):
 
     # Assert
     assert result is expected
-    loader.assert_called_once_with(str(path))
+    loader.assert_called_once_with(str(path), compile=False)
 
 
 def test_get_model_reloads_when_path_changes(tmp_path):
@@ -232,7 +233,10 @@ def test_get_model_reloads_when_path_changes(tmp_path):
     # Assert
     assert first is first_model
     assert second is second_model
-    assert loader.call_args_list == [call(str(first_path)), call(str(second_path))]
+    assert loader.call_args_list == [
+        call(str(first_path), compile=False),
+        call(str(second_path), compile=False),
+    ]
 
 
 def test_get_model_stores_cache_variables(tmp_path):
@@ -305,7 +309,7 @@ def test_get_model_passes_path_to_keras_loader_unchanged(tmp_path):
         load_model.get_model(str(path))
 
     # Assert
-    loader.assert_called_once_with(str(path))
+    loader.assert_called_once_with(str(path), compile=False)
 
 
 def test_get_model_propagates_loader_error(tmp_path):
